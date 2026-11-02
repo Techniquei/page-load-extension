@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "page load extension",
+  "version": "1.1.0",
+  "description": "Измеряет загрузку страницы или выбранного микрофронта до явно заданного сигнала готовности",
+  "minimum_chrome_version": "118",
+  "permissions": ["storage", "debugger"],
+  "host_permissions": ["https://*/*", "http://*/*"],
+  "background": { "service_worker": "background.js" },
+  "devtools_page": "devtools.html",
+  "content_scripts": [{
+    "matches": ["https://*/*", "http://*/*"],
+    "js": ["measurement.js", "content.js"],
+    "run_at": "document_start"
+  }]
+}
