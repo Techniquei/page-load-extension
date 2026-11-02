@@ -1,0 +1,73 @@
+# Собирает архив расширения и публикует его, когда в main появляется новая версия.
+name: Release
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Тесты
+        run: node --test tests/*.js
+      - name: Архив расширения
+        run: python3 scripts/package.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: extension-package
+          path: |
+            dist/*.zip
+            dist/RELEASE_NOTES.md
+            dist/version.txt
+          if-no-files-found: error
+
+  publish:
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: extension-package
+          path: dist
+      - name: Релиз
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          version="$(tr -d '[:space:]' < dist/version.txt)"
+          asset="dist/page-load-extension-${version}.zip"
+          tag="v${version}"
+          test -f "$asset"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            draft="$(gh release view "$tag" --json isDraft --jq .isDraft)"
+            names="$(gh release view "$tag" --json assets --jq '[.assets[].name] | join(",")')"
+            if [[ "$draft" == "true" ]]; then
+              gh release delete "$tag" --yes --cleanup-tag
+            elif [[ "$names" == *"page-load-extension-${version}.zip"* ]]; then
+              echo "Релиз ${tag} уже опубликован"
+              exit 0
+            else
+              echo "Релиз ${tag} есть, но в нём нет архива расширения" >&2
+              exit 1
+            fi
+          fi
+          gh release create "$tag" "$asset" \
+            --target "$GITHUB_SHA" \
+            --title "page load extension ${version}" \
+            --notes-file dist/RELEASE_NOTES.md

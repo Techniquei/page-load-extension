@@ -1,0 +1,15 @@
+# Скачиваемый архив GitHub содержит только файлы расширения.
+* export-ignore
+background.js -export-ignore
+content.js -export-ignore
+devtools.html -export-ignore
+devtools.js -export-ignore
+manifest.json -export-ignore
+measurement.js -export-ignore
+panel-view.js -export-ignore
+panel.css -export-ignore
+panel.html -export-ignore
+panel.js -export-ignore
+presets.js -export-ignore
+series.js -export-ignore
+sources.js -export-ignore
