@@ -41,6 +41,7 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           name: extension-package
@@ -48,6 +49,7 @@ jobs:
       - name: Релиз
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
           version="$(tr -d '[:space:]' < dist/version.txt)"
