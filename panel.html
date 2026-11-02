@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>page load extension</title>
+    <link rel="stylesheet" href="panel.css">
+</head>
+<body>
+<main>
+    <header class="page-header">
+        <div class="page-context"><h1>page load extension</h1><p class="muted" id="pageUrl"></p></div>
+        <div class="actions toolbar">
+            <button type="button" id="repeatMeasure" class="primary">Повторить с обновлением</button>
+            <button type="button" id="manualMeasure" title="После нажатия ждём доверенный клик или Enter/Space на странице">Ждать действие</button>
+            <button type="button" id="measureSeries">10 обновлений</button>
+            <button type="button" id="cancelSeries" hidden>Остановить серию</button>
+            <button type="button" id="exportSeries" hidden>Скачать серию</button>
+            <button type="button" id="stopMeasure" hidden>Остановить замер</button>
+            <button type="button" id="exportReport" disabled>Скачать отчёт</button>
+            <span class="actions" id="sourcesControls" hidden>
+                <button type="button" id="startSources" title="Отдельное обновление страницы для сбора расширенных стеков инициаторов. Главные показатели сохраняются из основного замера.">Уточнить источники запросов</button>
+                <button type="button" id="cancelSources" hidden>Отменить уточнение</button>
+            </span>
+            <button id="settingsToggle" type="button" aria-expanded="true" aria-controls="settings">Настройки</button>
+        </div>
+    </header>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+    <p id="sourcesStatus" class="muted sources-status" role="status"></p>
+    <section id="settings" class="card">
+        <form id="configForm">
+            <div class="split">
+                <label>Сохранённые настройки<select id="presetSelect"><option value="">Текущие настройки</option></select></label>
+                <label>Название пресета<input id="presetName" maxlength="80" aria-describedby="presetStatus"></label>
+            </div>
+            <div class="actions"><button type="button" id="savePreset">Сохранить пресет</button><button type="button" id="deletePreset" class="destructive">Удалить пресет</button><button type="button" id="newPreset">Новый</button></div>
+            <p class="muted" id="presetStatus" role="status" aria-live="polite"></p>
+            <div class="split">
+                <label>Область<select id="scope"><option value="page">Вся страница</option><option value="module">Микрофронт / модуль</option></select></label>
+                <label>Название<input id="configName" maxlength="80"></label>
+            </div>
+            <div id="moduleFields" hidden>
+                <label>Фрагменты URL кода модуля<textarea id="codePatterns" rows="3" aria-describedby="patternsHelp"></textarea></label>
+                <p class="muted" id="patternsHelp">По одному фрагменту URL на строку, без регулярных выражений.</p>
+                <label>Фрагменты URL данных и изображений (необязательно)<textarea id="resourcePatterns" rows="2" aria-describedby="patternsHelp"></textarea></label>
+            </div>
+            <label>CSS-селектор готовности<input aria-describedby="readyHelp" id="readyValue" maxlength="1000" required></label>
+            <p class="muted" id="readyHelp">Выбери элемент, который появляется после нужной загрузки.</p>
+            <label>CSS-селектор действия (необязательно)<input id="actionSelector" maxlength="1000" aria-describedby="actionHelp"></label>
+            <p class="muted" id="actionHelp">Пусто — любое действие на странице.</p>
+            <div class="actions"><button type="submit" id="saveMeasure">Сохранить и обновить</button></div>
+        </form>
+    </section>
+    <section id="dashboard" hidden></section>
+    <section id="seriesResults" hidden></section>
+    <div class="actions view-controls" id="viewControls" hidden>
+        <div class="actions" role="group" aria-label="Источник таймлайна и запросов"><button type="button" id="sourceMain" aria-pressed="true">Основной замер</button><button type="button" id="sourceDetails" aria-pressed="false" disabled>Уточнённые запросы</button></div>
+        <div class="actions view-filters">
+            <label class="check" id="showBeforeControl" hidden><input type="checkbox" id="showBefore"> Запросы до начала модуля</label>
+            <label class="check"><input type="checkbox" id="showAfter"> Запросы после готовности</label>
+        </div>
+    </div>
+    <section id="results" hidden></section>
+</main>
+<script src="measurement.js"></script>
+<script src="series.js"></script>
+<script src="panel-view.js"></script>
+<script src="panel.js"></script>
+</body>
+</html>
